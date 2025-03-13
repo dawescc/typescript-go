@@ -1,0 +1,36 @@
+name: Update Fork
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout upstream repository
+        uses: actions/checkout@v2
+        with:
+          repository: microsoft/typescript-go
+          path: upstream
+
+      - name: Checkout fork repository
+        uses: actions/checkout@v2
+        with:
+          repository: dawescc/typescript-go
+          path: fork
+
+      - name: Merge changes
+        run: |
+          cd fork
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git remote add upstream ../upstream
+          git fetch upstream
+          git checkout main 
+          git merge upstream/main
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
